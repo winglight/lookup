@@ -1,19 +1,41 @@
 document.addEventListener('mouseup', () => {
+    handleSelectedText();
+  });
+  
+  document.addEventListener('dblclick', () => {
+    handleSelectedText();
+  });
+  
+  let timeoutId;
+  let floatingWindow;
+  
+  function handleSelectedText() {
     const selectedText = window.getSelection().toString().trim();
     if (selectedText.length > 0) {
+      // 添加鼠标悬停事件监听
+      document.addEventListener('mouseover', mouseOverHandler);
+    }
+  }
+  
+  function mouseOverHandler(event) {
+    const selectedText = window.getSelection().toString().trim();
+    if (selectedText.length > 0 && window.getSelection().containsNode(event.target, true)) {
+      // 如果鼠标悬停在选中的文本上
+      document.removeEventListener('mouseover', mouseOverHandler);
       chrome.runtime.sendMessage({ action: 'lookupWord', word: selectedText }, response => {
         if (response) {
           showFloatingWindow(response.word, response.definition);
+          startAutoCloseTimer();
         }
       });
     }
-  });
+  }
   
   function showFloatingWindow(word, definition) {
     removeExistingFloatingWindow();
     const htmlContent = marked.parse(definition);
   
-    const floatingWindow = document.createElement('div');
+    floatingWindow = document.createElement('div');
     floatingWindow.id = 'dictionary-floating-window';
     floatingWindow.innerHTML = `
       <h2>${word}</h2>
@@ -26,14 +48,18 @@ document.addEventListener('mouseup', () => {
     const closeButton = document.getElementById('close-floating-window');
     closeButton.addEventListener('click', removeExistingFloatingWindow);
   
+    floatingWindow.addEventListener('mouseleave', startAutoCloseTimer);
+    floatingWindow.addEventListener('mouseenter', cancelAutoCloseTimer);
+  
     positionFloatingWindow(floatingWindow);
   }
   
   function removeExistingFloatingWindow() {
-    const existingWindow = document.getElementById('dictionary-floating-window');
-    if (existingWindow) {
-      existingWindow.remove();
+    if (floatingWindow) {
+      floatingWindow.remove();
+      floatingWindow = null;
     }
+    cancelAutoCloseTimer();
   }
   
   function positionFloatingWindow(floatingWindow) {
@@ -45,3 +71,16 @@ document.addEventListener('mouseup', () => {
     floatingWindow.style.left = `${rect.left + window.scrollX}px`;
     floatingWindow.style.top = `${rect.bottom + window.scrollY}px`;
   }
+  
+  function startAutoCloseTimer() {
+    cancelAutoCloseTimer();
+    timeoutId = setTimeout(removeExistingFloatingWindow, 2000); // 2秒后自动关闭
+  }
+  
+  function cancelAutoCloseTimer() {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  }
+  
