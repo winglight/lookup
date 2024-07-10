@@ -1,5 +1,5 @@
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({ apiKey: 'sk-DUUzPwybWpG9vt9wTjobW9-b1VtUS7qBEL06QXpRtJ4' });
+  chrome.storage.sync.set({ apiKey: 'sk-7x-u1oG_vQWFbnko0-RdwJGgwM2m6CGuzxG2gXk4CXc' });
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -22,7 +22,7 @@ async function lookupWord(word) {
 
   const apiKey = await chrome.storage.sync.get('apiKey').then(data => data.apiKey);
 
-  const apiUrl = "https://ai.zhnbhl.cn/api/v1/run/eb76f1d6-85d3-43c9-9c4d-a027833ccedd?stream=false";
+  const apiUrl = "https://winglighgt-langflow.hf.space/api/v1/run/16695af6-41c6-4b0c-a7a0-6fa69d6adf3d?stream=false";
   const headers = {
     'Content-Type': 'application/json',
     'x-api-key': apiKey
@@ -102,3 +102,4 @@ function updateLookupCount(word) {
     }
   });
 }
+  
