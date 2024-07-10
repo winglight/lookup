@@ -1,0 +1,19 @@
+#dictionary-floating-window {
+    position: absolute;
+    z-index: 10000;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    max-width: 800px;
+  }
+  
+  #dictionary-floating-window h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  
+  #close-floating-window {
+    margin-top: 10px;
+  }
