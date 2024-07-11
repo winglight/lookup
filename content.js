@@ -1,3 +1,6 @@
+const isReady = await window.ai.canCreateTextSession();
+const gemini = window.ai;
+
 document.addEventListener('mouseup', () => {
   handleSelectedText();
 });
