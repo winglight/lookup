@@ -1,3 +1,7 @@
+window.onload = function() {
+  document.getElementById('word-input').focus();
+}
+
 document.getElementById('lookup-button').addEventListener('click', lookupWord);
 document.getElementById('word-input').addEventListener('keypress', event => {
   if (event.key === 'Enter') {

@@ -23,58 +23,45 @@ async function lookupWord(word) {
   }
   let definition = "No definition found in the response.";
 
-  // gemini nano
- 
-  if( isReady !== 'no'){
-    const session = await gemini.createTextSession();
+  const apiKey = await chrome.storage.sync.get('apiKey').then(data => data.apiKey);
 
-    // Prompt the model and wait for the whole result to come back.  
-    const result = await session.prompt(INITIAL_WORDS);
-    console.log(result);
-
-    definition = await session.prompt('/word ' + word);
-
-  }else{
-    const apiKey = await chrome.storage.sync.get('apiKey').then(data => data.apiKey);
-
-    const apiUrl = "https://winglighgt-langflow.hf.space/api/v1/run/16695af6-41c6-4b0c-a7a0-6fa69d6adf3d?stream=false";
-    const headers = {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey
-    };
-    const payload = {
-      "input_value": `Define the word: ${word}`,
-      "output_type": "chat",
-      "input_type": "chat",
-      "tweaks": {
-        "GroqModel-snATY": {},
-        "ChatInput-rBilA": {},
-        "ChatOutput-ZT9GJ": {},
-        "Prompt-GDHj8": {}
-      }
-    };
-
-    try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-
-      if (data.outputs && data.outputs.length > 0) {
-        const firstOutput = data.outputs[0];
-        if (firstOutput.outputs && firstOutput.outputs.length > 0) {
-          const results = firstOutput.outputs[0].results || {};
-          const message = results.message || {};
-          definition = message.text || "No definition found in the response.";
-        }
-      }
-    } catch (error) {
-      console.error('Error looking up word:', error);
-      throw error;
+  const apiUrl = "https://winglighgt-langflow.hf.space/api/v1/run/16695af6-41c6-4b0c-a7a0-6fa69d6adf3d?stream=false";
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-api-key': apiKey
+  };
+  const payload = {
+    "input_value": `Define the word: ${word}`,
+    "output_type": "chat",
+    "input_type": "chat",
+    "tweaks": {
+      "GroqModel-snATY": {},
+      "ChatInput-rBilA": {},
+      "ChatOutput-ZT9GJ": {},
+      "Prompt-GDHj8": {}
     }
+  };
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
+
+    if (data.outputs && data.outputs.length > 0) {
+      const firstOutput = data.outputs[0];
+      if (firstOutput.outputs && firstOutput.outputs.length > 0) {
+        const results = firstOutput.outputs[0].results || {};
+        const message = results.message || {};
+        definition = message.text || "No definition found in the response.";
+      }
     }
+  } catch (error) {
+    console.error('Error looking up word:', error);
+    throw error;
+  }
 
     await saveToLocalStorage(word, definition);
     const { lookupCount } = await getFromLocalStorage(word);
